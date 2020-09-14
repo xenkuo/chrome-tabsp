@@ -7,7 +7,7 @@
     window.ChromeTabs = factory(window, window.Draggabilly)
   }
 })(window, (window, Draggabilly) => {
-  const TAB_CONTENT_MARGIN = 9
+  const TAB_CONTENT_MARGIN = 10
   const TAB_CONTENT_OVERLAP_DISTANCE = 1
 
   const TAB_OVERLAP_DISTANCE = (TAB_CONTENT_MARGIN * 2) + TAB_CONTENT_OVERLAP_DISTANCE
@@ -18,6 +18,7 @@
   const TAB_SIZE_SMALL = 84
   const TAB_SIZE_SMALLER = 60
   const TAB_SIZE_MINI = 48
+  const NEW_TAB_BUTTON_AREA = 90
 
   const noop = _ => {}
 
@@ -45,13 +46,25 @@
         <div class="chrome-tab-favicon"></div>
         <div class="chrome-tab-title"></div>
         <div class="chrome-tab-drag-handle"></div>
-        <div class="chrome-tab-close"></div>
+        <div class="chrome-tab-optionsContainer">
+          <div class="chrome-tab-options"></div>
+          <div id="optionsMenu" class="dropdown-content">
+              <div class="close option">Close</div>
+              <div class="rename option">Rename</div>
+          </div>
+        </div>
       </div>
     </div>
   `
 
+  const newTabButtonTemplate = `
+    <div class="new-tab-button-wrapper">
+      <button class="new-tab-button">✚</button>
+    </div>
+  `
+
   const defaultTapProperties = {
-    title: 'New tab',
+    title: 'New Section',
     favicon: false
   }
 
@@ -73,6 +86,7 @@
       this.setupStyleEl()
       this.setupEvents()
       this.layoutTabs()
+      this.setupNewTabButton()
       this.setupDraggabilly()
     }
 
@@ -99,7 +113,14 @@
         if ([this.el, this.tabContentEl].includes(event.target)) this.addTab()
       })
 
-      this.tabEls.forEach((tabEl) => this.setTabCloseEventListener(tabEl))
+      this.el.addEventListener("click", ({ target }) => {
+        if (target.classList.contains("new-tab-button")){
+          this.hideMenuOptions()
+          this.addTab()
+        }          
+      })
+
+      this.tabEls.forEach((tabEl) => this.setTabEventListener(tabEl))
     }
 
     get tabEls() {
@@ -112,7 +133,7 @@
 
     get tabContentWidths() {
       const numberOfTabs = this.tabEls.length
-      const tabsContentWidth = this.tabContentEl.clientWidth
+      const tabsContentWidth = this.el.clientWidth - NEW_TAB_BUTTON_AREA
       const tabsCumulativeOverlappedWidth = (numberOfTabs - 1) * TAB_CONTENT_OVERLAP_DISTANCE
       const targetWidth = (tabsContentWidth - (2 * TAB_CONTENT_MARGIN) + tabsCumulativeOverlappedWidth) / numberOfTabs
       const clampedTargetWidth = Math.max(TAB_CONTENT_MIN_WIDTH, Math.min(TAB_CONTENT_MAX_WIDTH, targetWidth))
@@ -158,6 +179,7 @@
 
     layoutTabs() {
       const tabContentWidths = this.tabContentWidths
+      let tabsLen = this.tabEls.length
 
       this.tabEls.forEach((tabEl, i) => {
         const contentWidth = tabContentWidths[i]
@@ -182,6 +204,11 @@
         `
       })
       this.styleEl.innerHTML = styleHTML
+
+      if (this.el.offsetWidth - this.tabContentEl.offsetWidth > NEW_TAB_BUTTON_AREA + (TAB_CONTENT_MARGIN / 2) || tabsLen < 5) {
+        this.tabContentEl.style.width = `${ (this.tabEls[0] ? this.tabEls[0].offsetWidth * tabsLen : 0) - (tabsLen > 0 ? ((tabsLen * TAB_CONTENT_MARGIN * 2) - TAB_CONTENT_MIN_WIDTH + TAB_CONTENT_MARGIN) : 0) }px`
+        this.tabContentEl.nextElementSibling.classList.remove('overflow-shadow')
+      } else this.tabContentEl.nextElementSibling.classList.add('overflow-shadow')
     }
 
     createNewTabEl() {
@@ -200,7 +227,7 @@
 
       tabProperties = Object.assign({}, defaultTapProperties, tabProperties)
       this.tabContentEl.appendChild(tabEl)
-      this.setTabCloseEventListener(tabEl)
+      this.setTabEventListener(tabEl)
       this.updateTab(tabEl, tabProperties)
       this.emit('tabAdd', { tabEl })
       if (!background) this.setCurrentTab(tabEl)
@@ -209,8 +236,27 @@
       this.setupDraggabilly()
     }
 
-    setTabCloseEventListener(tabEl) {
-      tabEl.querySelector('.chrome-tab-close').addEventListener('click', _ => this.removeTab(tabEl))
+    setTabEventListener(tabEl) {
+      tabEl.querySelector('.chrome-tab-options').addEventListener('click', _ => {
+        this.setCurrentTab(tabEl)
+        this.hideMenuOptions()                
+        tabEl.querySelector('.dropdown-content').classList.add('showDropdown')
+      })
+      tabEl.querySelector('.close').addEventListener('click', _ => this.removeTab(tabEl))
+      tabEl.querySelector('.rename').addEventListener('click', _ => {
+        let title = prompt("Enter the new section name", tabEl.querySelector('.chrome-tab-title').textContent)     
+        if(title){
+          this.updateTab(tabEl, {title : title})
+        }
+        this.hideMenuOptions()
+      })
+    }
+
+    hideMenuOptions(){
+      for(let element of this.tabContentEl.querySelectorAll('.chrome-tab')){
+        let content = element.querySelector('.dropdown-content')
+        content.classList.remove('showDropdown')
+      }
     }
 
     get activeTabEl() {
@@ -294,6 +340,7 @@
         this.draggabillies.push(draggabilly)
 
         draggabilly.on('pointerDown', _ => {
+          this.hideMenuOptions()
           this.setCurrentTab(tabEl)
         })
 
@@ -353,6 +400,11 @@
         tabEl.parentNode.insertBefore(tabEl, this.tabEls[destinationIndex + 1])
       }
       this.emit('tabReorder', { tabEl, originIndex, destinationIndex })
+      this.layoutTabs()
+    }
+
+    setupNewTabButton() {
+      this.tabContentEl.insertAdjacentHTML('afterend', newTabButtonTemplate)
       this.layoutTabs()
     }
   }

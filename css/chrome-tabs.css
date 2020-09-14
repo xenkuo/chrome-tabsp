@@ -7,16 +7,52 @@
   padding: 8px 3px 4px 3px;
   background: #dee1e6;
   border-radius: 5px 5px 0 0;
-  overflow: hidden;
+  display: flex;
 }
 .chrome-tabs * {
   box-sizing: inherit;
   font: inherit;
 }
+.chrome-tabs .new-tab-button-wrapper {
+  display: inline-flex;
+  align-items: center;
+  background: inherit;
+  pointer-events: auto;
+  height: 100%;
+  width: 80px;
+  position: relative;
+  border-radius: 17px;
+  pointer-events: auto;
+  transition: padding 0.35s;
+}
+.chrome-tabs .new-tab-button-wrapper.overflow-shadow {
+  box-shadow: -5px 1px 5px #ccc, 20px 0 0 #dee1e6;
+  padding-left: 4px;
+}
+.chrome-tabs .new-tab-button-wrapper .new-tab-button {
+  height: 28px;
+  width: 28px;
+  line-height: 0;
+  border-radius: 50%;
+  font-weight: 100;
+  font-size: 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #555;
+  box-shadow: none;
+  transition: background 0.35s;
+  cursor: default;
+}
+.chrome-tabs .new-tab-button-wrapper .new-tab-button:hover {
+  background: rgba(150,150,150,0.25);
+}
 .chrome-tabs .chrome-tabs-content {
   position: relative;
   width: 100%;
   height: 100%;
+  transition: width 0.1s;
+  margin-right: 5px;
 }
 .chrome-tabs .chrome-tab {
   position: absolute;
@@ -115,7 +151,6 @@
   padding: 9px 8px;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  overflow: hidden;
   pointer-events: all;
 }
 .chrome-tabs .chrome-tab[is-mini] .chrome-tab-content {
@@ -174,43 +209,70 @@
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
-.chrome-tabs .chrome-tab .chrome-tab-close {
+.chrome-tab-optionsContainer{
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 70px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 15;
+}
+
+.dropdown-content .option{
+  color: black;
+  padding: 7px 16px;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+}
+.dropdown-content .option:hover{
+  background-color: #ddd;
+}
+.dropdown-content a:hover {background-color: #ddd}
+.showDropdown {display:block;}
+
+.chrome-tabs .chrome-tab .chrome-tab-options {
   flex-grow: 0;
   flex-shrink: 0;
   position: relative;
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'><path stroke='rgba(0, 0, 0, .65)' stroke-linecap='square' stroke-width='1.5' d='M0 0 L8 8 M8 0 L0 8'></path></svg>");
+  background-image: url('data:image/svg+xml;utf8,<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 384 384" style="enable-background:new 0 0 384 384;" xml:space="preserve"><g><g><circle cx="192" cy="42.667" r="42.667"/></g></g><g><g><circle cx="192" cy="192" r="42.667"/></g></g><g><g><circle cx="192" cy="341.333" r="42.667"/></g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>');
   background-position: center center;
   background-repeat: no-repeat;
   background-size: 8px 8px;
 }
 @media (hover: hover) {
-  .chrome-tabs .chrome-tab .chrome-tab-close:hover {
+  .chrome-tabs .chrome-tab .chrome-tab-options:hover {
     background-color: #e8eaed;
   }
-  .chrome-tabs .chrome-tab .chrome-tab-close:hover:active {
+  .chrome-tabs .chrome-tab .chrome-tab-options:hover:active {
     background-color: #dadce0;
   }
 }
 @media not all and (hover: hover) {
-  .chrome-tabs .chrome-tab .chrome-tab-close:active {
+  .chrome-tabs .chrome-tab .chrome-tab-options:active {
     background-color: #dadce0;
   }
 }
 @media (hover: hover) {
-  .chrome-tabs .chrome-tab:not([active]) .chrome-tab-close:not(:hover):not(:active) {
+  .chrome-tabs .chrome-tab:not([active]) .chrome-tab-options:not(:hover):not(:active) {
     opacity: 0.8;
   }
 }
-.chrome-tabs .chrome-tab[is-smaller] .chrome-tab-close {
+.chrome-tabs .chrome-tab[is-smaller] .chrome-tab-options {
   margin-left: auto;
 }
-.chrome-tabs .chrome-tab[is-mini]:not([active]) .chrome-tab-close {
+.chrome-tabs .chrome-tab[is-mini]:not([active]) .chrome-tab-options {
   display: none;
 }
-.chrome-tabs .chrome-tab[is-mini][active] .chrome-tab-close {
+.chrome-tabs .chrome-tab[is-mini][active] .chrome-tab-options {
   margin-left: auto;
   margin-right: auto;
 }
@@ -245,7 +307,6 @@
   left: 0;
   width: 100%;
   background: #fff;
-  z-index: 10;
 }
 .chrome-tabs-optional-shadow-below-bottom-bar {
   position: relative;
