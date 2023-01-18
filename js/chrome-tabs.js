@@ -46,12 +46,7 @@
         <div class="chrome-tab-favicon"></div>
         <div class="chrome-tab-title"></div>
         <div class="chrome-tab-drag-handle"></div>
-        <div class="chrome-tab-optionsContainer">
-          <div class="chrome-tab-options"></div>
-          <div id="optionsMenu" class="dropdown-content">
-              <div class="close option">Close</div>
-              <div class="rename option">Rename</div>
-          </div>
+        <div class="chrome-tab-options"></div>
         </div>
       </div>
     </div>
@@ -62,7 +57,7 @@
       <button class="new-tab-button">✚</button>
     </div>
   `
-
+    // ✖
     const defaultTapProperties = {
         title: 'New Section',
         favicon: false
@@ -115,7 +110,6 @@
 
             this.el.addEventListener("click", ({ target }) => {
                 if (target.classList.contains("new-tab-button")) {
-                    this.hideMenuOptions()
                     this.addTab()
                 }
             })
@@ -238,25 +232,8 @@
 
         setTabEventListener(tabEl) {
             tabEl.querySelector('.chrome-tab-options').addEventListener('click', _ => {
-                this.setCurrentTab(tabEl)
-                this.hideMenuOptions()
-                tabEl.querySelector('.dropdown-content').classList.add('showDropdown')
+                this.removeTab(tabEl)
             })
-            tabEl.querySelector('.close').addEventListener('click', _ => this.removeTab(tabEl))
-            tabEl.querySelector('.rename').addEventListener('click', _ => {
-                let title = prompt("Enter the new section name", tabEl.querySelector('.chrome-tab-title').textContent)
-                if (title) {
-                    this.updateTab(tabEl, { title: title })
-                }
-                this.hideMenuOptions()
-            })
-        }
-
-        hideMenuOptions() {
-            for (let element of this.tabContentEl.querySelectorAll('.chrome-tab')) {
-                let content = element.querySelector('.dropdown-content')
-                content.classList.remove('showDropdown')
-            }
         }
 
         get activeTabEl() {
@@ -276,6 +253,8 @@
         }
 
         removeTab(tabEl) {
+            if (1 === this.tabEls.length) return
+
             if (tabEl === this.activeTabEl) {
                 if (tabEl.nextElementSibling) {
                     this.setCurrentTab(tabEl.nextElementSibling)
@@ -340,7 +319,6 @@
                 this.draggabillies.push(draggabilly)
 
                 draggabilly.on('pointerDown', _ => {
-                    this.hideMenuOptions()
                     this.setCurrentTab(tabEl)
                 })
 
