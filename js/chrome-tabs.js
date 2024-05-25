@@ -36,7 +36,7 @@
     return closestIndex
   }
 
-  const tabTemplate = `
+  const tabTemplate = /*html*/ `
     <div class="chrome-tab">
       <div class="chrome-tab-dividers"></div>
       <div class="chrome-tab-background">
@@ -52,7 +52,7 @@
     </div>
   `
 
-  const newTabButtonTemplate = `
+  const newTabButtonTemplate = /*html*/ `
     <div class="new-tab-button-wrapper">
       <button class="new-tab-button">✚</button>
     </div>
